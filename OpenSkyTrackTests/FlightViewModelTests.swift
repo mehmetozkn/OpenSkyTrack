@@ -145,15 +145,7 @@ final class FlightViewModelTests: XCTestCase {
             151.2, // longitude
             33.9, // latitude
             10000, // altitude
-            onGround,
-            250.1, // velocity
-            90.0, // heading
-            0.0, // verticalRate
-            nil, // sensors
-            35000, // geoAltitude
-            nil, // squawk
-            false, // spi
-            0 // positionSource
+            onGround
         ]
     }
 }
