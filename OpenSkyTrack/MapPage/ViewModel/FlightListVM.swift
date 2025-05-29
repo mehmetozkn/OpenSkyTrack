@@ -16,6 +16,7 @@ final class FlightViewModel {
     let isLoading: BehaviorRelay<Bool> = BehaviorRelay(value: false)
     let availableCountries: BehaviorRelay<[String]> = BehaviorRelay(value: [])
     let selectedCountry: BehaviorRelay<String?> = BehaviorRelay(value: nil)
+    let isAlertPresented: BehaviorRelay<Bool> = BehaviorRelay(value: false)
 
     private let baseService: BaseServiceProtocol
     private let disposeBag = DisposeBag()
@@ -51,6 +52,9 @@ final class FlightViewModel {
     }
 
     func updateFlights(for region: MKCoordinateRegion) {
+        // if the alert is presented, do not update flights
+        guard !isAlertPresented.value else { return }
+        
         // Store the region for comparison
         lastRegion = region
 
@@ -62,10 +66,11 @@ final class FlightViewModel {
         timer = Observable<Int>
             .interval(.seconds(5), scheduler: MainScheduler.instance)
             .startWith(0) // Emit immediately
-        .subscribe(onNext: { [weak self] _ in
-            guard let self = self else { return }
-            self.fetchFlights(for: region)
-        })
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self,
+                      !self.isAlertPresented.value else { return }
+                self.fetchFlights(for: region)
+            })
 
         timer?.disposed(by: disposeBag)
     }
@@ -91,6 +96,7 @@ final class FlightViewModel {
                          },
                          onError: { [weak self] error in
                              self?.error.accept(error.localizedDescription)
+                             self?.isAlertPresented.accept(true)
                              self?.isLoading.accept(false)
                          }
         )

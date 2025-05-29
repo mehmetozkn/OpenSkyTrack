@@ -41,13 +41,10 @@ final class FlightListViewController: UIViewController {
         // Setup Country Picker Button
         countryPickerButton = UIButton(type: .system)
         countryPickerButton.translatesAutoresizingMaskIntoConstraints = false
-        countryPickerButton.setTitle("All Countries", for: .normal)
+        countryPickerButton.setTitle(StringConstants.allCountries, for: .normal)
         countryPickerButton.backgroundColor = .systemBackground
         countryPickerButton.layer.cornerRadius = 8
         countryPickerButton.layer.shadowColor = UIColor.black.cgColor
-        countryPickerButton.layer.shadowOffset = CGSize(width: 0, height: 2)
-        countryPickerButton.layer.shadowRadius = 4
-        countryPickerButton.layer.shadowOpacity = 0.2
         countryPickerButton.addTarget(self, action: #selector(showCountryPicker), for: .touchUpInside)
         view.addSubview(countryPickerButton)
 
@@ -56,7 +53,7 @@ final class FlightListViewController: UIViewController {
 
         // Setup Constraints
         NSLayoutConstraint.activate([
-            countryPickerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            countryPickerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             countryPickerButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             countryPickerButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             countryPickerButton.heightAnchor.constraint(equalToConstant: 44),
@@ -74,7 +71,7 @@ final class FlightListViewController: UIViewController {
         // Setup overlay view
         overlayView = UIView()
         overlayView.translatesAutoresizingMaskIntoConstraints = false
-        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         overlayView.isHidden = true
         view.addSubview(overlayView)
 
@@ -120,6 +117,19 @@ final class FlightListViewController: UIViewController {
             self?.showError(error)
         })
             .disposed(by: disposeBag)
+
+        // Bind alert state
+        viewModel.isAlertPresented
+            .skip(1) // Skip initial value
+        .subscribe(onNext: { [weak self] isPresented in
+            if !isPresented {
+                // Alert dismissed, update the map if needed
+                if let region = self?.mapView.region {
+                    self?.viewModel.updateFlights(for: region)
+                }
+            }
+        })
+            .disposed(by: disposeBag)
     }
 
     private func updateLoadingState(_ isLoading: Bool) {
@@ -153,18 +163,20 @@ final class FlightListViewController: UIViewController {
     }
 
     private func showError(_ message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: StringConstants.error, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: StringConstants.ok, style: .default) { [weak self] _ in
+            self?.viewModel.isAlertPresented.accept(false)
+        })
         present(alert, animated: true)
     }
 
     @objc private func showCountryPicker() {
-        let alert = UIAlertController(title: "Select Country", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: StringConstants.selectCountry, message: nil, preferredStyle: .actionSheet)
 
         // Add "All Countries" option
-        alert.addAction(UIAlertAction(title: "All Countries", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: StringConstants.allCountries, style: .default) { [weak self] _ in
             self?.viewModel.selectedCountry.accept(nil)
-            self?.countryPickerButton.setTitle("All Countries", for: .normal)
+            self?.countryPickerButton.setTitle(StringConstants.allCountries, for: .normal)
         })
 
         // Add country options
@@ -175,7 +187,7 @@ final class FlightListViewController: UIViewController {
             })
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: StringConstants.cancel, style: .cancel))
         present(alert, animated: true)
     }
 }
@@ -186,8 +198,7 @@ extension FlightListViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         guard annotation is MKPointAnnotation else { return nil }
 
-        let identifier = "FlightAnnotation"
-
+        let identifier = StringConstants.flighAnnotationIdentifier
         let annotationView: MKMarkerAnnotationView
 
         // Try to dequeue a reusable annotation view
@@ -198,7 +209,7 @@ extension FlightListViewController: MKMapViewDelegate {
             annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
         }
 
-        annotationView.glyphImage = UIImage(systemName: "airplane")
+        annotationView.glyphImage = UIImage(systemName: StringConstants.annotationImage)
         annotationView.markerTintColor = .systemBlue
         annotationView.canShowCallout = true
 
@@ -209,7 +220,3 @@ extension FlightListViewController: MKMapViewDelegate {
         viewModel.updateFlights(for: mapView.region)
     }
 }
-
-
-
-

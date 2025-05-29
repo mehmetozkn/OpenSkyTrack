@@ -9,7 +9,7 @@ protocol BaseServiceProtocol {
     )
 }
 
-class BaseService: BaseServiceProtocol {
+final class BaseService: BaseServiceProtocol {
     static let shared = BaseService()
 
     private init() { }
