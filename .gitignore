@@ -1,3 +1,27 @@
+# Xcode project user-specific files
+*.xcuserstate
+*.xcscmblueprint
+
+# User data (kişisel ayarlar, breakpoints, vs)
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+xcdebugger/
+Breakpoints_*.xcbkptlist
+
+# Xcode scheme files (kişisel ayarlar içerir)
+xcshareddata/xcschemes/*
+!xcshareddata/xcschemes/*.xcscheme # Eğer paylaşılacak scheme varsa açık bırak
+xcschemes/
+xcschememanagement.plist
+
+# Swift Package Manager
+Package.resolved
+.swiftpm/
+.build/
+
+# Derived data (derleme çıktıları)
+DerivedData/
 # Xcode user-specific files
 *.xcuserstate
 *.xcscmblueprint
