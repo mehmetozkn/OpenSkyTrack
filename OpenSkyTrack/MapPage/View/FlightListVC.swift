@@ -98,7 +98,8 @@ final class FlightListViewController: UIViewController {
         // Bind loading state
         viewModel.isLoading
             .subscribe(onNext: { [weak self] isLoading in
-            self?.updateLoadingState(isLoading)
+            guard let self = self else { return }
+            self.updateLoadingState(isLoading)
         })
             .disposed(by: disposeBag)
 
@@ -106,7 +107,8 @@ final class FlightListViewController: UIViewController {
         viewModel.filteredFlights
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] flights in
-            self?.updateMapAnnotations(with: flights)
+            guard let self = self else { return }
+            self.updateMapAnnotations(with: flights)
         })
             .disposed(by: disposeBag)
 
@@ -114,19 +116,20 @@ final class FlightListViewController: UIViewController {
         viewModel.error
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] error in
-            self?.showError(error)
+            guard let self = self else { return }
+            self.showError(error)
         })
             .disposed(by: disposeBag)
 
         // Bind alert state
         viewModel.isAlertPresented
-            .skip(1) // Skip initial value
+            .skip(1) // skip initial value to avoid unnecessary processing
         .subscribe(onNext: { [weak self] isPresented in
+            guard let self = self else { return }
             if !isPresented {
                 // Alert dismissed, update the map if needed
-                if let region = self?.mapView.region {
-                    self?.viewModel.updateFlights(for: region)
-                }
+                let region = self.mapView.region
+                self.viewModel.updateFlights(for: region)
             }
         })
             .disposed(by: disposeBag)
@@ -165,7 +168,8 @@ final class FlightListViewController: UIViewController {
     private func showError(_ message: String) {
         let alert = UIAlertController(title: StringConstants.error, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: StringConstants.tryAgain, style: .default) { [weak self] _ in
-            self?.viewModel.isAlertPresented.accept(false)
+            guard let self = self else { return }
+            self.viewModel.isAlertPresented.accept(false)
         })
         present(alert, animated: true)
     }
@@ -175,15 +179,17 @@ final class FlightListViewController: UIViewController {
 
         // Add "All Countries" option
         alert.addAction(UIAlertAction(title: StringConstants.allCountries, style: .default) { [weak self] _ in
-            self?.viewModel.selectedCountry.accept(nil)
-            self?.countryPickerButton.setTitle(StringConstants.allCountries, for: .normal)
+            guard let self = self else { return }
+            self.viewModel.selectedCountry.accept(nil)
+            self.countryPickerButton.setTitle(StringConstants.allCountries, for: .normal)
         })
 
         // Add country options
         viewModel.availableCountries.value.forEach { country in
             alert.addAction(UIAlertAction(title: country, style: .default) { [weak self] _ in
-                self?.viewModel.selectedCountry.accept(country)
-                self?.countryPickerButton.setTitle(country, for: .normal)
+                guard let self = self else { return }
+                self.viewModel.selectedCountry.accept(country)
+                self.countryPickerButton.setTitle(country, for: .normal)
             })
         }
 

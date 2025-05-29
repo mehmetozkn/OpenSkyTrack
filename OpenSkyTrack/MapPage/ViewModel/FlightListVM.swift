@@ -43,10 +43,11 @@ final class FlightViewModel {
 
     private func setupBindings() {
         selectedCountry
-            .skip(1) // Skip initial value for nil country selection
+            .skip(1) // Skip the initial value to avoid sending a request
         .subscribe(onNext: { [weak self] _ in
-            if let region = self?.lastRegion {
-                self?.fetchFlights(for: region)
+            guard let self = self else { return }
+            if let region = self.lastRegion {
+                self.fetchFlights(for: region)
             }
         }).disposed(by: disposeBag)
     }
@@ -54,7 +55,7 @@ final class FlightViewModel {
     func updateFlights(for region: MKCoordinateRegion) {
         // if the alert is presented, do not update flights
         guard !isAlertPresented.value else { return }
-        
+
         // Store the region for comparison
         lastRegion = region
 
@@ -66,11 +67,10 @@ final class FlightViewModel {
         timer = Observable<Int>
             .interval(.seconds(5), scheduler: MainScheduler.instance)
             .startWith(0) // Emit immediately
-            .subscribe(onNext: { [weak self] _ in
-                guard let self = self,
-                      !self.isAlertPresented.value else { return }
-                self.fetchFlights(for: region)
-            })
+        .subscribe(onNext: { [weak self] _ in
+            guard let self = self, !self.isAlertPresented.value else { return }
+            self.fetchFlights(for: region)
+        })
 
         timer?.disposed(by: disposeBag)
     }
@@ -95,14 +95,15 @@ final class FlightViewModel {
                              self.isLoading.accept(false)
                          },
                          onError: { [weak self] error in
-                             self?.error.accept(error.localizedDescription)
-                             self?.isAlertPresented.accept(true)
-                             self?.isLoading.accept(false)
+                             guard let self = self else { return }
+                             self.error.accept(error.localizedDescription)
+                             self.isAlertPresented.accept(true)
+                             self.isLoading.accept(false)
                          }
         )
     }
 
-    // Updates the list of available countries based on the flights data
+    // Updates the list of available countries based on flight data, with countries appearing 1 time
     func updateAvailableCountries(_ flights: [Flight]) {
         let countries = Array(Set(flights.map { $0.originCountry })).sorted()
         availableCountries.accept(countries)

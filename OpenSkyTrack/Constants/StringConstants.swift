@@ -4,8 +4,6 @@ enum StringConstants {
     static let tryAgain = "Try Again"
     static let selectCountry = "Select Country"
     static let cancel = "Cancel"
-    static let mockError = "Mock Error"
     static let flighAnnotationIdentifier = "FlightAnnotation"
     static let annotationImage = "airplane"
-    static let misMatchResponseType = "Mock response type mismatch"
 }

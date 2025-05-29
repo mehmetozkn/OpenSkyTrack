@@ -66,7 +66,7 @@ final class FlightViewModelTests: XCTestCase {
 
         viewModel.error
             .subscribe(onNext: { error in
-            XCTAssertEqual(error, "Mock Error")
+            XCTAssertEqual(error, "Mock Error Return")
             expectation.fulfill()
         })
             .disposed(by: disposeBag)
@@ -158,7 +158,6 @@ final class FlightViewModelTests: XCTestCase {
 
 extension FlightViewModelTests {
     // MARK: - Helper Method
-
     private func createMockFlightData(
         callsign: String,
         country: String = "Test Country",
