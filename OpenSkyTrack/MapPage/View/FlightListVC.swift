@@ -164,7 +164,7 @@ final class FlightListViewController: UIViewController {
 
     private func showError(_ message: String) {
         let alert = UIAlertController(title: StringConstants.error, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: StringConstants.ok, style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: StringConstants.tryAgain, style: .default) { [weak self] _ in
             self?.viewModel.isAlertPresented.accept(false)
         })
         present(alert, animated: true)
