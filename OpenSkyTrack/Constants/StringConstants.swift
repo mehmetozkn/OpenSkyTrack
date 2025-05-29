@@ -7,4 +7,5 @@ enum StringConstants {
     static let mockError = "Mock Error"
     static let flighAnnotationIdentifier = "FlightAnnotation"
     static let annotationImage = "airplane"
+    static let misMatchResponseType = "Mock response type mismatch"
 }

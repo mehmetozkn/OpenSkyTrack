@@ -26,14 +26,15 @@ final class FlightViewModelTests: XCTestCase {
         super.tearDown()
     }
 
-    func testInitialState() {
+    func testInitialState_ShouldHaveEmpty() {
         XCTAssertTrue(viewModel.flights.value.isEmpty)
         XCTAssertFalse(viewModel.isLoading.value)
         XCTAssertTrue(viewModel.availableCountries.value.isEmpty)
         XCTAssertNil(viewModel.selectedCountry.value)
     }
 
-    func testUpdateFlightsSuccess() {
+    // service call successful test
+    func testUpdateFlights_WhenServiceSucceeds_ShouldUpdateFlights() {
         let expectation = XCTestExpectation(description: "Flights updated")
         let mockFlights = [
             createMockFlightData(callsign: "TEST1"),
@@ -41,7 +42,7 @@ final class FlightViewModelTests: XCTestCase {
         ]
 
         mockService.shouldReturnError = false
-        mockService.mockFlightResponse = OpenSkyTrack.FlightResponse(time: 1622222222, states: mockFlights)
+        mockService.mockResponse = OpenSkyTrack.FlightResponse(time: 1622222222, states: mockFlights)
 
         viewModel.flights
             .skip(1)
@@ -57,10 +58,11 @@ final class FlightViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: defaultTimeout)
     }
 
-    func testUpdateFlightsFailure() {
+    // service call failed test
+    func testUpdateFlights_WhenServiceFails_ShouldEmitError() {
         let expectation = XCTestExpectation(description: "Error received")
         mockService.shouldReturnError = true
-        mockService.mockFlightResponse = nil
+        mockService.mockResponse = nil
 
         viewModel.error
             .subscribe(onNext: { error in
@@ -73,7 +75,8 @@ final class FlightViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: defaultTimeout)
     }
 
-    func testFilterFlightsByCountry() {
+    // filter flights by selected country successful test
+    func testFilterFlightsByCountry_WhenCountryMatches_ShouldReturnFilteredFlights() {
         let expectation = XCTestExpectation(description: "Flights filtered by country")
         let mockFlights = [
             OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST1", country: "USA")),
@@ -94,7 +97,29 @@ final class FlightViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: defaultTimeout)
     }
 
-    func testFilterGroundedFlights() {
+    // filter flights by selected country with unmatched country
+    func testFilterFlightsByCountry_WhenNoMatch_ShouldReturnEmptyList() {
+        let expectation = XCTestExpectation(description: "No flights should match the selected country")
+        let mockFlights = [
+            OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST1", country: "Germany")),
+            OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST2", country: "Turkey"))
+        ]
+
+        viewModel.flights.accept(mockFlights)
+        viewModel.selectedCountry.accept("USA") // USA yok
+
+        viewModel.filteredFlights
+            .subscribe(onNext: { flights in
+            XCTAssertEqual(flights.count, 0, "Expected no flights to match the selected country")
+            expectation.fulfill()
+        })
+            .disposed(by: disposeBag)
+
+        wait(for: [expectation], timeout: defaultTimeout)
+    }
+
+    // live flights filter successful test
+    func testFilterFlightsByGroundedStatus_ShouldReturnOnlyFlyingFlights() {
         let expectation = XCTestExpectation(description: "Grounded flights filtered")
         let mockFlights = [
             OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST1", onGround: true)),
@@ -114,7 +139,8 @@ final class FlightViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: defaultTimeout)
     }
 
-    func testUpdateAvailableCountries() {
+    // successful test of showing each country once in country selection
+    func testUpdateAvailableCountries_ShouldReturnUniqueCountries() {
         let mockFlights = [
             OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST1", country: "USA")),
             OpenSkyTrack.Flight(from: createMockFlightData(callsign: "TEST2", country: "Turkey")),
@@ -128,7 +154,9 @@ final class FlightViewModelTests: XCTestCase {
         XCTAssertTrue(countries.contains("USA"))
         XCTAssertTrue(countries.contains("Turkey"))
     }
+}
 
+extension FlightViewModelTests {
     // MARK: - Helper Method
 
     private func createMockFlightData(
@@ -149,4 +177,5 @@ final class FlightViewModelTests: XCTestCase {
         ]
     }
 }
+
 
