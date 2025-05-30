@@ -98,6 +98,3 @@ enum HTTPMethod: String {
     case PUT
     case DELETE
 }
-
-// MARK: - Empty Body Type
-struct EmptyBody: Encodable { }

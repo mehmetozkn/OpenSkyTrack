@@ -1,9 +1,9 @@
 import Foundation
 
-/// Request to get all flights in a specific region
+// Request to get all flights in a specific region
 struct GetAllFlightRequest: BaseRequest {
     typealias Response = FlightResponse
-    typealias Body = EmptyBody
+    typealias Body = Never // No body for this GET request
 
     let path: String = "/states/all"
     let method: HTTPMethod = .GET

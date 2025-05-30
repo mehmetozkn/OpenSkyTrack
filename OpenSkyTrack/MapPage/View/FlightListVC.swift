@@ -30,7 +30,6 @@ final class FlightListViewController: UIViewController {
             span: MKCoordinateSpan(latitudeDelta: 2.0, longitudeDelta: 4.0)
         )
         mapView.setRegion(initialRegion, animated: false)
-        viewModel.updateFlights(for: initialRegion)
     }
 
     private func setupUI() {
@@ -177,7 +176,7 @@ final class FlightListViewController: UIViewController {
     @objc private func showCountryPicker() {
         // Set alert state to true to prevent API calls
         viewModel.isAlertPresented.accept(true)
-        
+
         let alert = UIAlertController(title: StringConstants.selectCountry, message: nil, preferredStyle: .actionSheet)
 
         // Add "All Countries" option
@@ -202,7 +201,7 @@ final class FlightListViewController: UIViewController {
         alert.addAction(UIAlertAction(title: StringConstants.cancel, style: .cancel) { [weak self] _ in
             self?.viewModel.isAlertPresented.accept(false)
         })
-        
+
         present(alert, animated: true)
     }
 }

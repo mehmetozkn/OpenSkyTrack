@@ -53,6 +53,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MapPage/Model/Flight.swift,
+				Network/Logger/NetworkLogger.swift,
 				Network/Requests/AllFlightRequest.swift,
 				Network/Service/BaseRequest.swift,
 				Network/Service/BaseService.swift,

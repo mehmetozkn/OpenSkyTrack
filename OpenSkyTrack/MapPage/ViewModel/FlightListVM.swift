@@ -105,7 +105,9 @@ final class FlightViewModel {
 
     // Updates the list of available countries based on flight data, with countries appearing 1 time
     func updateAvailableCountries(_ flights: [Flight]) {
-        let countries = Array(Set(flights.map { $0.originCountry })).sorted()
+        let countries = Array(Set(flights.map { $0.originCountry }))
+            .filter { !$0.isEmpty } // Filter out empty country names
+            .sorted()
         availableCountries.accept(countries)
     }
 
