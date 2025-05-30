@@ -53,10 +53,12 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MapPage/Model/Flight.swift,
+				Network/Logger/NetworkLogger.swift,
 				Network/Requests/AllFlightRequest.swift,
 				Network/Service/BaseRequest.swift,
 				Network/Service/BaseService.swift,
 				Utilities/AnyCodable.swift,
+				Utilities/NetworkErrorEnum.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};
