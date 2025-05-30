@@ -57,6 +57,7 @@
 				Network/Service/BaseRequest.swift,
 				Network/Service/BaseService.swift,
 				Utilities/AnyCodable.swift,
+				Utilities/NetworkErrorEnum.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};
