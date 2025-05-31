@@ -1,3 +1,10 @@
+//
+//  GetAllFlightRequest.swift
+//  OpenSkyTrack
+//
+//  Created by Mehmet Özkan on 30.05.2025.
+//
+
 import Foundation
 
 // Request to get all flights in a specific region

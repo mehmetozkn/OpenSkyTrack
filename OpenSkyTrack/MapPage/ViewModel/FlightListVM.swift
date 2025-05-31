@@ -65,7 +65,7 @@ final class FlightViewModel {
         // Create new timer for auto-refresh
         // Update flights if the area shown on the map does not change for 5 seconds
         timer = Observable<Int>
-            .interval(.seconds(5), scheduler: MainScheduler.instance)
+            .interval(.seconds(1), scheduler: MainScheduler.instance)
             .startWith(0) // Emit immediately
         .subscribe(onNext: { [weak self] _ in
             guard let self = self, !self.isAlertPresented.value else { return }
@@ -107,7 +107,7 @@ final class FlightViewModel {
     func updateAvailableCountries(_ flights: [Flight]) {
         let countries = Array(Set(flights.map { $0.originCountry }))
             .filter { !$0.isEmpty } // Filter out empty country names
-            .sorted()
+        .sorted()
         availableCountries.accept(countries)
     }
 

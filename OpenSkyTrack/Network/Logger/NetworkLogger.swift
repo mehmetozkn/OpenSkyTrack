@@ -1,9 +1,19 @@
+//
+//  NetworkLogger.swift
+//  OpenSkyTrack
+//
+//  Created by Mehmet Özkan on 31.05.2025.
+//
+
 import Foundation
 import Alamofire
 
 final class NetworkLogger {
-    static func logRequest(_ request: URLRequest) {
+    static func logRequest(_ request: URLRequest, requestId: String? = nil) {
         print("\n🚀 REQUEST LOG 🚀")
+        if let requestId = requestId {
+            print("Request ID: \(requestId)")
+        }
         print("URL: \(request.url?.absoluteString ?? "")")
         print("Method: \(request.httpMethod ?? "")")
         print("Headers: \(request.allHTTPHeaderFields ?? [:])")
@@ -15,8 +25,11 @@ final class NetworkLogger {
         print("------------------------\n")
     }
 
-    static func logResponse(_ response: AFDataResponse<Data>) {
+    static func logResponse(_ response: AFDataResponse<Data>, requestId: String? = nil) {
         print("\n📥 RESPONSE LOG 📥")
+        if let requestId = requestId {
+            print("Request ID: \(requestId)")
+        }
         print("URL: \(response.request?.url?.absoluteString ?? "")")
         print("Status Code: \(response.response?.statusCode ?? 0)")
 

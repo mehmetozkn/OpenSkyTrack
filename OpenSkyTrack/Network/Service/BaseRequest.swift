@@ -1,3 +1,10 @@
+//
+//  BaseRequest.swift
+//  OpenSkyTrack
+//
+//  Created by Mehmet Özkan on 30.05.2025.
+//
+
 import Foundation
 
 // Protocol for all network requests
@@ -84,17 +91,7 @@ extension BaseRequest {
             }
         }
 
-        // Log the request
-        NetworkLogger.logRequest(request)
-
         return request
     }
 }
 
-// HTTP Methods supported by the API
-enum HTTPMethod: String {
-    case GET
-    case POST
-    case PUT
-    case DELETE
-}

@@ -57,8 +57,10 @@
 				Network/Requests/AllFlightRequest.swift,
 				Network/Service/BaseRequest.swift,
 				Network/Service/BaseService.swift,
-				Utilities/AnyCodable.swift,
-				Utilities/NetworkErrorEnum.swift,
+				Network/Utilities/AnyCodable.swift,
+				Network/Utilities/APIError.swift,
+				Network/Utilities/HTTPMethod.swift,
+				Network/Utilities/NetworkError.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};
