@@ -38,14 +38,16 @@
 		8504606E2DE895500036E246 /* Exceptions for "OpenSkyTrackTests" folder in "OpenSkyTrack" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				TestUtilities/MockBaseService.swift,
+				NetworkTests/MockBaseService.swift,
+				NetworkTests/MockRequest.swift,
 			);
 			target = 850197C42DE76DDC00B1323B /* OpenSkyTrack */;
 		};
 		8504606F2DE895500036E246 /* Exceptions for "OpenSkyTrackTests" folder in "OpenSkyTrackTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				TestUtilities/MockBaseService.swift,
+				NetworkTests/MockBaseService.swift,
+				NetworkTests/MockRequest.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};

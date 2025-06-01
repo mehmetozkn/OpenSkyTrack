@@ -16,6 +16,9 @@ protocol BaseServiceProtocol {
     )
 }
 
+/// Handles all network operations for the OpenSky API
+/// - Note: This service uses Alamofire for network requests
+/// - Important: All requests require an internet connection
 final class BaseService: BaseServiceProtocol {
     static let shared = BaseService()
 
@@ -25,6 +28,11 @@ final class BaseService: BaseServiceProtocol {
         return UUID().uuidString
     }
 
+    /// Sends a network request
+    /// - Parameters:
+    ///   - request: The request to send
+    ///   - onSuccess: Called when request succeeds
+    ///   - onError: Called when request fails
     func send<T: BaseRequest>(
         _ request: T,
         onSuccess: @escaping (T.Response) -> Void,
@@ -52,7 +60,12 @@ final class BaseService: BaseServiceProtocol {
             .validate(statusCode: 200..<300)
             .responseData { response in
             // Log the response with request ID
-            NetworkLogger.logResponse(response, requestId: requestId)
+            NetworkLogger.logResponse(
+                response: response.response,
+                data: response.data,
+                error: response.error,
+                requestId: requestId
+            )
 
             switch response.result {
             case .success(let data):
@@ -69,14 +82,7 @@ final class BaseService: BaseServiceProtocol {
                 if let data = response.data {
                     do {
                         let apiError = try JSONDecoder().decode(APIError.self, from: data)
-                        switch statusCode {
-                        case 400...499:
-                            onError(NetworkError.clientError(statusCode, apiError))
-                        case 500...599:
-                            onError(NetworkError.apiError(apiError))
-                        default:
-                            onError(NetworkError.unknown(statusCode))
-                        }
+                        onError(NetworkError.httpError(statusCode: statusCode, apiError: apiError))
                         return
                     } catch {
                         print("⚠️ API Error decoding failed: \(error)")
@@ -86,17 +92,8 @@ final class BaseService: BaseServiceProtocol {
                     }
                 }
 
-                let error: NetworkError
-                switch statusCode {
-                case 400...499:
-                    error = .clientError(statusCode, nil)
-                case 500...599:
-                    error = .serverError(statusCode)
-                default:
-                    error = .unknown(statusCode)
-                }
-
-                onError(error)
+                // If we couldn't decode API error, just return the status code
+                onError(NetworkError.httpError(statusCode: statusCode, apiError: nil))
             }
         }
     }

@@ -7,38 +7,42 @@
 
 import Foundation
 
-// Network error types
+/// Represents various types of network-related errors that can occur during API operations
 enum NetworkError: LocalizedError {
+    /// The request could not be created or is invalid
     case invalidRequest
-    case invalidResponse
-    case serverError(Int)
-    case clientError(Int, APIError?)
-    case decodingError
-    case unknown(Int?)
-    case offline
-    case apiError(APIError)
 
+    /// The response received from the server is invalid or could not be processed
+    case invalidResponse
+
+    /// An HTTP error occurred with a specific status code and optional API error details
+    /// - Parameters:
+    ///   - statusCode: The HTTP status code received
+    ///   - apiError: Optional structured error information from the API
+    case httpError(statusCode: Int, apiError: APIError?)
+
+    /// The response data could not be decoded into the expected format
+    case decodingError
+
+    /// No internet connection is available
+    case offline
+
+    /// A human-readable description of the error
     var errorDescription: String? {
         switch self {
         case .invalidRequest:
             return "Invalid request"
         case .invalidResponse:
             return "Invalid response from server"
-        case .serverError(let code):
-            return "Server error occurred with status code: \(code)"
-        case .clientError(let code, let apiError):
+        case .httpError(_, let apiError):
             if let apiError = apiError {
-                return "\(apiError.message) (Code: \(code))"
+                return apiError.message
             }
-            return "Client error occurred with status code: \(code)"
+            return "An unexpected error occurred"
         case .decodingError:
             return "Failed to decode response"
-        case .unknown(let code):
-            return "Unknown error occurred\(code.map { " with status code: \($0)" } ?? "")"
         case .offline:
             return "No internet connection available"
-        case .apiError(let error):
-            return error.message
         }
     }
 }
