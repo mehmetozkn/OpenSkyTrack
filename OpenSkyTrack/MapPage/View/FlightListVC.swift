@@ -113,6 +113,7 @@ final class FlightListViewController: UIViewController {
     private func setupBindings() {
         // Bind loading state
         viewModel.isLoading
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] isLoading in
             guard let self = self else { return }
             self.updateLoadingState(isLoading)
