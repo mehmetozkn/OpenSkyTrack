@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "82B5C7DE-0A60-440C-BE8C-75C942DAFDD5",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:OpenSkyTrack.xcodeproj",
+          "identifier" : "850197DA2DE76DDD00B1323B",
+          "name" : "OpenSkyTrackTests"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:OpenSkyTrack.xcodeproj",
+      "identifier" : "850197C42DE76DDC00B1323B",
+      "name" : "OpenSkyTrack"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:OpenSkyTrack.xcodeproj",
+        "identifier" : "850197DA2DE76DDD00B1323B",
+        "name" : "OpenSkyTrackTests"
+      }
+    }
+  ],
+  "version" : 1
+}
