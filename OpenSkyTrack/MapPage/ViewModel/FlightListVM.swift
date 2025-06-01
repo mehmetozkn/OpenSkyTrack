@@ -112,12 +112,20 @@ final class FlightViewModel {
         timer?.disposed(by: disposeBag)
     }
 
-    /// Fetches flight data from the API
+    // MARK: - Flight Data Fetching
+
+    /// Fetches flights for the specified map region
     /// - Parameter region: The map region to fetch flights for
+    /// This method:
+    /// 1. Updates loading state
+    /// 2. Creates and sends API request
+    /// 3. Processes response and updates UI
+    /// 4. Handles any potential errors
     private func fetchFlights(for region: MKCoordinateRegion) {
+        // Start loading state
         isLoading.accept(true)
 
-        // Create request with the current region's coordinates
+        // Calculate bounding box coordinates for the request
         let request = GetAllFlightRequest(
             lamin: region.center.latitude - region.span.latitudeDelta / 2,
             lomin: region.center.longitude - region.span.longitudeDelta / 2,
@@ -125,9 +133,11 @@ final class FlightViewModel {
             lomax: region.center.longitude + region.span.longitudeDelta / 2
         )
 
+        // Send API request and handle response
         baseService.send(request,
                         onSuccess: { [weak self] response in
                             guard let self = self else { return }
+                            // Transform response into Flight objects
                             let newFlights = response.states?.compactMap { Flight(from: $0) } ?? []
                             self.flights.accept(newFlights)
                             self.updateAvailableCountries(newFlights)
@@ -135,6 +145,7 @@ final class FlightViewModel {
                         },
                         onError: { [weak self] error in
                             guard let self = self else { return }
+                            // Handle error and update UI accordingly
                             self.error.accept(error.localizedDescription)
                             self.isAlertPresented.accept(true)
                             self.isLoading.accept(false)
@@ -142,12 +153,31 @@ final class FlightViewModel {
         )
     }
 
+    // MARK: - Helper Methods
+
+    /// Creates map annotations from flight data
+    /// - Parameter flights: Array of flights to create annotations from
+    /// - Returns: Array of map annotations ready to be displayed
+    func createAnnotations(from flights: [Flight]) -> [MKPointAnnotation] {
+        return flights.map { flight -> MKPointAnnotation in
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = flight.coordinate
+            annotation.title = flight.callsign
+            return annotation
+        }
+    }
+
     /// Updates the list of available countries based on flight data
     /// - Parameter flights: The flights to extract countries from
+    /// This method:
+    /// - Extracts unique country names from flights
+    /// - Filters out empty country names
+    /// - Sorts countries alphabetically
+    /// - Updates the availableCountries relay
     func updateAvailableCountries(_ flights: [Flight]) {
         let countries = Array(Set(flights.map { $0.originCountry }))
-            .filter { !$0.isEmpty } // Filter out empty country names
-            .sorted()
+            .filter { !$0.isEmpty } // Remove empty country names
+            .sorted() // Sort alphabetically
         availableCountries.accept(countries)
     }
 

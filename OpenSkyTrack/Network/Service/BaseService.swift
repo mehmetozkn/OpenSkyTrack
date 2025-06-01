@@ -17,22 +17,38 @@ protocol BaseServiceProtocol {
 }
 
 /// Handles all network operations for the OpenSky API
-/// - Note: This service uses Alamofire for network requests
-/// - Important: All requests require an internet connection
+/// This service is responsible for:
+/// - Making HTTP requests to the OpenSky Network API
+/// - Handling request/response logging
+/// - Managing request IDs for tracking
+/// - Validating network connectivity
+/// - Processing responses and errors
 final class BaseService: BaseServiceProtocol {
+    // MARK: - Singleton Instance
+    
+    /// Shared instance for singleton access
     static let shared = BaseService()
 
+    /// Private initializer to enforce singleton pattern
     private init() { }
 
+    // MARK: - Helper Methods
+    
+    /// Generates a unique request ID for tracking network requests
+    /// - Returns: A UUID string to identify the request
     private func generateRequestId() -> String {
         return UUID().uuidString
     }
 
-    /// Sends a network request
+    // MARK: - Network Operations
+    
+    /// Sends a network request and handles the response
     /// - Parameters:
-    ///   - request: The request to send
-    ///   - onSuccess: Called when request succeeds
-    ///   - onError: Called when request fails
+    ///   - request: The request to send, conforming to BaseRequest protocol
+    ///   - onSuccess: Callback for successful response with decoded data
+    ///   - onError: Callback for any errors that occur during the request
+    /// - Important: This method checks for network connectivity before sending the request
+    /// - Note: All requests are logged using NetworkLogger for debugging purposes
     func send<T: BaseRequest>(
         _ request: T,
         onSuccess: @escaping (T.Response) -> Void,
@@ -44,58 +60,61 @@ final class BaseService: BaseServiceProtocol {
             return
         }
 
+        // Prepare URL request with all necessary components
         guard var urlRequest = request.asURLRequest else {
             onError(NetworkError.invalidRequest)
             return
         }
 
-        // Add X-Request-ID header
+        // Add request tracking header
         let requestId = generateRequestId()
         urlRequest.setValue(requestId, forHTTPHeaderField: "X-Request-ID")
 
-        // Log the request with request ID
+        // Log outgoing request
         NetworkLogger.logRequest(urlRequest, requestId: requestId)
 
+        // Send request using Alamofire
         AF.request(urlRequest)
             .validate(statusCode: 200..<300)
             .responseData { response in
-            // Log the response with request ID
-            NetworkLogger.logResponse(
-                response: response.response,
-                data: response.data,
-                error: response.error,
-                requestId: requestId
-            )
+                // Log incoming response
+                NetworkLogger.logResponse(
+                    response: response.response,
+                    data: response.data,
+                    error: response.error,
+                    requestId: requestId
+                )
 
-            switch response.result {
-            case .success(let data):
-                do {
-                    let decodedResponse = try JSONDecoder().decode(T.Response.self, from: data)
-                    onSuccess(decodedResponse)
-                } catch {
-                    onError(NetworkError.decodingError)
-                }
-            case .failure:
-                let statusCode = response.response?.statusCode ?? -1
-
-                // Try to decode API error if present
-                if let data = response.data {
+                // Process response
+                switch response.result {
+                case .success(let data):
                     do {
-                        let apiError = try JSONDecoder().decode(APIError.self, from: data)
-                        onError(NetworkError.httpError(statusCode: statusCode, apiError: apiError))
-                        return
+                        let decodedResponse = try JSONDecoder().decode(T.Response.self, from: data)
+                        onSuccess(decodedResponse)
                     } catch {
-                        print("⚠️ API Error decoding failed: \(error)")
-                        if let rawResponse = String(data: data, encoding: .utf8) {
-                            print("📄 Raw response: \(rawResponse)")
+                        onError(NetworkError.decodingError)
+                    }
+                case .failure:
+                    let statusCode = response.response?.statusCode ?? -1
+
+                    // Try to decode API error if present
+                    if let data = response.data {
+                        do {
+                            let apiError = try JSONDecoder().decode(APIError.self, from: data)
+                            onError(NetworkError.httpError(statusCode: statusCode, apiError: apiError))
+                            return
+                        } catch {
+                            print("⚠️ API Error decoding failed: \(error)")
+                            if let rawResponse = String(data: data, encoding: .utf8) {
+                                print("📄 Raw response: \(rawResponse)")
+                            }
                         }
                     }
-                }
 
-                // If we couldn't decode API error, just return the status code
-                onError(NetworkError.httpError(statusCode: statusCode, apiError: nil))
+                    // If we couldn't decode API error, just return the status code
+                    onError(NetworkError.httpError(statusCode: statusCode, apiError: nil))
+                }
             }
-        }
     }
 }
 

@@ -8,20 +8,36 @@
 import Foundation
 import MapKit
 
+// MARK: - Flight Response
+
 /// Represents the response from the OpenSky Network API containing flight state vectors
+/// This struct handles the decoding of the raw API response into a more usable format
 struct FlightResponse: Codable {
+    // MARK: - Properties
+    
     /// Unix timestamp (seconds) of the last data update
     let time: Int
     
     /// Array of flight state vectors
     /// Each vector is an array of optional values representing various flight attributes
+    /// The array indices correspond to specific flight data:
+    /// - [0]: ICAO24 (unique identifier)
+    /// - [1]: Callsign
+    /// - [2]: Origin Country
+    /// - [5]: Longitude
+    /// - [6]: Latitude
+    /// - [8]: On Ground status
     let states: [[Any?]]?
 
+    // MARK: - Coding Keys
+    
     enum CodingKeys: String, CodingKey {
         case time
         case states
     }
 
+    // MARK: - Initialization
+    
     /// Creates a new flight response with the specified time and states
     /// - Parameters:
     ///   - time: Unix timestamp of the data
@@ -31,6 +47,8 @@ struct FlightResponse: Codable {
         self.states = states
     }
 
+    // MARK: - Codable Implementation
+    
     /// Decodes a FlightResponse from JSON data
     /// - Parameter decoder: The decoder to read from
     /// - Throws: DecodingError if the data cannot be decoded
@@ -61,8 +79,14 @@ struct FlightResponse: Codable {
     }
 }
 
+// MARK: - Flight Model
+
 /// Represents a single flight with its current state information
+/// This struct provides a clean interface to access flight data
+/// that was received in the raw state vector format
 struct Flight {
+    // MARK: - Properties
+    
     /// ICAO24 unique identifier for the aircraft
     let id: String
     
@@ -86,6 +110,8 @@ struct Flight {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
+    // MARK: - Initialization
+    
     /// Creates a new Flight from a state vector array
     /// - Parameter state: Array containing flight state information
     /// Index meanings:

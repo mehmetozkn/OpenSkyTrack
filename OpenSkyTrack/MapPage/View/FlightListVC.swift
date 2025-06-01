@@ -10,14 +10,31 @@ import MapKit
 import RxSwift
 import RxRelay
 
+/// FlightListViewController displays a map with real-time flight tracking
+/// This view controller is responsible for:
+/// - Displaying flights on a map
+/// - Filtering flights by country
+/// - Handling loading states and errors
+/// - Updating flight positions in real-time
 final class FlightListViewController: UIViewController {
     private let viewModel = FlightViewModel(service: BaseService.shared)
     private let disposeBag = DisposeBag()
 
+    // MARK: - UI Components
+    
+    /// Button for selecting country filters
     private var countryPickerButton: UIButton!
+    
+    /// MapView displaying flight locations
     private var mapView: MKMapView!
+    
+    /// Activity indicator for loading states
     private var loadingIndicator: UIActivityIndicatorView!
+    
+    /// Semi-transparent view for loading overlay
     private var overlayView: UIView!
+
+    // MARK: - Lifecycle Methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -153,15 +170,7 @@ final class FlightListViewController: UIViewController {
 
     private func updateMapAnnotations(with flights: [Flight]) {
         mapView.removeAnnotations(mapView.annotations)
-
-        let annotations = flights.map { flight -> MKPointAnnotation in
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = flight.coordinate
-            annotation.title = flight.callsign
-            return annotation
-        }
-
-        mapView.addAnnotations(annotations)
+        mapView.addAnnotations(viewModel.createAnnotations(from: flights))
     }
 
     private func showError(_ message: String) {
