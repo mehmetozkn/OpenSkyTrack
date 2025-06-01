@@ -102,7 +102,7 @@ final class FlightViewModel {
         // Create new timer for auto-refresh
         // Update flights if the area shown on the map does not change for 5 seconds
         timer = Observable<Int>
-            .interval(.seconds(1), scheduler: MainScheduler.instance)
+            .interval(.seconds(5), scheduler: MainScheduler.instance)
             .startWith(0) // Emit immediately
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self, !self.isAlertPresented.value else { return }
