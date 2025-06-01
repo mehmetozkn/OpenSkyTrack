@@ -66,7 +66,7 @@ final class FlightViewModelTests: XCTestCase {
 
         viewModel.error
             .subscribe(onNext: { error in
-            XCTAssertEqual(error, "Mock Error Return")
+            XCTAssertEqual(error, "Test error")
             expectation.fulfill()
         })
             .disposed(by: disposeBag)

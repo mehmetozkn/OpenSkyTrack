@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		850197C52DE76DDC00B1323B /* OpenSkyTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSkyTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		850197DB2DE76DDD00B1323B /* OpenSkyTrackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenSkyTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		850F13C82DEC6D7700730647 /* OpenSkyTrack.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = OpenSkyTrack.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -38,14 +39,16 @@
 		8504606E2DE895500036E246 /* Exceptions for "OpenSkyTrackTests" folder in "OpenSkyTrack" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				TestUtilities/MockBaseService.swift,
+				Models/MockRequest.swift,
+				NetworkTests/MockBaseService.swift,
 			);
 			target = 850197C42DE76DDC00B1323B /* OpenSkyTrack */;
 		};
 		8504606F2DE895500036E246 /* Exceptions for "OpenSkyTrackTests" folder in "OpenSkyTrackTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				TestUtilities/MockBaseService.swift,
+				Models/MockRequest.swift,
+				NetworkTests/MockBaseService.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};
@@ -57,8 +60,10 @@
 				Network/Requests/AllFlightRequest.swift,
 				Network/Service/BaseRequest.swift,
 				Network/Service/BaseService.swift,
-				Utilities/AnyCodable.swift,
-				Utilities/NetworkErrorEnum.swift,
+				Network/Utilities/AnyCodable.swift,
+				Network/Utilities/APIError.swift,
+				Network/Utilities/HTTPMethod.swift,
+				Network/Utilities/NetworkError.swift,
 			);
 			target = 850197DA2DE76DDD00B1323B /* OpenSkyTrackTests */;
 		};
@@ -109,6 +114,7 @@
 		850197BC2DE76DDC00B1323B = {
 			isa = PBXGroup;
 			children = (
+				850F13C82DEC6D7700730647 /* OpenSkyTrack.xctestplan */,
 				850197C72DE76DDC00B1323B /* OpenSkyTrack */,
 				850197DE2DE76DDD00B1323B /* OpenSkyTrackTests */,
 				850197C62DE76DDC00B1323B /* Products */,

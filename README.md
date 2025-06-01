@@ -1,14 +1,29 @@
 # OpenSkyTrack
 The OpenSky Network API to show planes on the map.
 
-### Requirements
+### How it works
+- The project can be run without requiring any configuration.
+- When the application is opened, a starting location appears on the map and the live flight data there is shown.
+- The user can go anywhere on the map, zoom in or out. Flight data for the currently visible part of the map is displayed.
+- By clicking the button at the top, the user can select the country they want and view the flights there.
+- If the user does not change the visible area on the map for 5 seconds, the flight data is automatically refreshed.
 
-- The user must be able to select any area on the map by zooming in and out to see all live flights in the selected region.
+### Include
+- MVVM architecture
+- Singleton Pattern
+- Unit Tests 
+- Integration Tests
+- Network Layer
+- Network Logger
+- Programmatic UI Development
+- Protocol-Oriented Programming
+- Reactive Programming (RxSwift)
+- Dependency Injection
+- Generic Programming
+- Error Handling
+- Memory Management
 
-- If visible area doesn’t change for 5 seconds, the data must be refreshed automatically.
-
-- User should be able to filter the flights by selecting the origin country of the flight
-
+- Note: Test Coverage Rate : %96
 
 ### Example Request
 https://opensky-network.org/api/states/all?lamin=45.8389&lomin=5.9962&lamax=47.8229&lomax=10.5226

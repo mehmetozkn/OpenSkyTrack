@@ -1,50 +1,76 @@
+//
+//  BaseRequest.swift
+//  OpenSkyTrack
+//
+//  Created by Mehmet Özkan on 30.05.2025.
+//
+
 import Foundation
 
-// Protocol for all network requests
+/// Protocol defining the structure of all network requests in the application
+/// Provides a standardized way to create and configure network requests
 protocol BaseRequest {
+    /// The type of response expected from this request
+    /// Must conform to Decodable to enable automatic JSON decoding
     associatedtype Response: Decodable
+    
+    /// The type of body data to be sent with this request
+    /// Must conform to Encodable to enable automatic JSON encoding
     associatedtype Body: Encodable
 
-    // Base URL for the API
+    /// The base URL for the API
+    /// This is typically the root URL of the API service
     var baseUrl: String { get }
 
-    // Endpoint path
+    /// The specific endpoint path for this request
+    /// This will be appended to the base URL
     var path: String { get }
 
-    // HTTP method for the request
+    /// The HTTP method to be used for this request
     var method: HTTPMethod { get }
 
-    // Query parameters for GET and DELETE requests
+    /// Optional query parameters for GET and DELETE requests
+    /// These will be encoded into the URL query string
     var queryParameters: [String: Any]? { get }
 
-    // Body parameters for POST and PUT requests
+    /// Optional body data for POST and PUT requests
+    /// This will be encoded as JSON in the request body
     var body: Body? { get }
 
-    // Headers for the request
+    /// Optional custom headers for the request
+    /// These will be added to the default headers
     var headers: [String: String]? { get }
 }
 
 // MARK: - Default Implementations
+
 extension BaseRequest {
+    /// Default base URL for the OpenSky Network API
     var baseUrl: String {
         return "https://opensky-network.org/api/"
     }
 
+    /// Default implementation returns nil for query parameters
     var queryParameters: [String: Any]? {
         return nil
     }
 
+    /// Default implementation returns nil for body
     var body: Body? {
         return nil
     }
 
+    /// Default implementation returns nil for headers
     var headers: [String: String]? {
         return nil
     }
 }
 
 // MARK: - URLRequest Creation
+
 extension BaseRequest {
+    /// Creates a URLRequest from the request configuration
+    /// - Returns: A configured URLRequest ready to be sent, or nil if the request could not be created
     var asURLRequest: URLRequest? {
         var urlComponents = URLComponents(string: baseUrl + path)
 
@@ -84,17 +110,7 @@ extension BaseRequest {
             }
         }
 
-        // Log the request
-        NetworkLogger.logRequest(request)
-
         return request
     }
 }
 
-// HTTP Methods supported by the API
-enum HTTPMethod: String {
-    case GET
-    case POST
-    case PUT
-    case DELETE
-}
