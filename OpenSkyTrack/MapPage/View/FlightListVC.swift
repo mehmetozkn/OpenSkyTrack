@@ -17,20 +17,29 @@ import RxRelay
 /// - Handling loading states and errors
 /// - Updating flight positions in real-time
 final class FlightListViewController: UIViewController {
-    private let viewModel = FlightViewModel(service: BaseService.shared)
+    private let viewModel: FlightViewModelProtocol
     private let disposeBag = DisposeBag()
 
-    // MARK: - UI Components
-    
+    // MARK: - Initialization
+
+    init() {
+        self.viewModel = FlightViewModel(service: BaseService.shared)
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     /// Button for selecting country filters
     private var countryPickerButton: UIButton!
-    
+
     /// MapView displaying flight locations
     private var mapView: MKMapView!
-    
+
     /// Activity indicator for loading states
     private var loadingIndicator: UIActivityIndicatorView!
-    
+
     /// Semi-transparent view for loading overlay
     private var overlayView: UIView!
 
