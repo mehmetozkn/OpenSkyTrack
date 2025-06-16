@@ -10,20 +10,12 @@ import MapKit
 import RxSwift
 import RxRelay
 
-/// FlightListViewController displays a map with real-time flight tracking
-/// This view controller is responsible for:
-/// - Displaying flights on a map
-/// - Filtering flights by country
-/// - Handling loading states and errors
-/// - Updating flight positions in real-time
 final class FlightListViewController: UIViewController {
     private let viewModel: FlightViewModelProtocol
     private let disposeBag = DisposeBag()
 
-    // MARK: - Initialization
-
     init() {
-        self.viewModel = FlightViewModel(service: BaseService.shared)
+        self.viewModel = FlightViewModel()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -42,8 +34,6 @@ final class FlightListViewController: UIViewController {
 
     /// Semi-transparent view for loading overlay
     private var overlayView: UIView!
-
-    // MARK: - Lifecycle Methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -96,7 +86,7 @@ final class FlightListViewController: UIViewController {
         // Setup overlay view
         overlayView = UIView()
         overlayView.translatesAutoresizingMaskIntoConstraints = false
-        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
         overlayView.isHidden = true
         view.addSubview(overlayView)
 

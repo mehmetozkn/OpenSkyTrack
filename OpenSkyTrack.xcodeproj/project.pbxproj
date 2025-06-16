@@ -55,7 +55,10 @@
 		85CF31972DE7795E0034EBB1 /* Exceptions for "OpenSkyTrack" folder in "OpenSkyTrackTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MapPage/Model/Flight.swift,
+				AppStorageManager/AppStorage.swift,
+				AppStorageManager/StorageKeys.swift,
+				FlightMapPage/Model/Flight.swift,
+				FlightMapPage/Service/FlightService.swift,
 				Network/Logger/NetworkLogger.swift,
 				Network/Requests/AllFlightRequest.swift,
 				Network/Service/BaseRequest.swift,
