@@ -20,6 +20,7 @@ protocol FlightViewModelProtocol {
     var filteredFlights: Observable<[Flight]> { get }
 
     func updateFlights(for region: MKCoordinateRegion)
+    func updateAvailableCountries(_ flights: [Flight])
     func createAnnotations(from flights: [Flight]) -> [MKPointAnnotation]
     func stopUpdates()
 }
@@ -74,6 +75,11 @@ final class FlightViewModel: FlightViewModelProtocol {
     func updateFlights(for region: MKCoordinateRegion) {
         lastRegion = region
         flightService.fetchFlights(for: region)
+    }
+
+    func updateAvailableCountries(_ flights: [Flight]) {
+        let countries = Array(Set(flights.map { $0.originCountry })).sorted()
+        availableCountries.accept(countries)
     }
 
     func createAnnotations(from flights: [Flight]) -> [MKPointAnnotation] {
