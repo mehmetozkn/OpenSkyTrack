@@ -3,7 +3,7 @@ import RxSwift
 import RxRelay
 import MapKit
 
-protocol FlightServiceProtocol {
+protocol FlightRepositoryProtocol {
     var flights: BehaviorRelay<[Flight]> { get }
     var error: PublishRelay<String> { get }
     var isLoading: BehaviorRelay<Bool> { get }
@@ -12,21 +12,20 @@ protocol FlightServiceProtocol {
     func stopUpdates()
 }
 
-final class FlightService: FlightServiceProtocol {
+final class FlightRepository: FlightRepositoryProtocol {
     let flights: BehaviorRelay<[Flight]> = BehaviorRelay(value: [])
     let error: PublishRelay<String> = PublishRelay()
     let isLoading: BehaviorRelay<Bool> = BehaviorRelay(value: false)
 
     private let baseService: BaseServiceProtocol
-    private let appStorage: AppStorage
+    private let appStorage: AppStorageProtocol
     private let disposeBag = DisposeBag()
     private var timer: Disposable?
     private var lastRegion: MKCoordinateRegion?
 
     private let cacheExpirationInterval: TimeInterval = 5
 
-    init(baseService: BaseServiceProtocol = BaseService.shared,
-         appStorage: AppStorage = AppStorage.shared) {
+    init(baseService: BaseServiceProtocol = BaseService.shared, appStorage: AppStorageProtocol = AppStorage.shared) {
         self.baseService = baseService
         self.appStorage = appStorage
         setupTimer()
@@ -54,7 +53,6 @@ final class FlightService: FlightServiceProtocol {
                          onError: { [weak self] error in
                              guard let self = self else { return }
                              if case NetworkError.offline = error {
-                                 // If offline, try to get cached data
                                  if let cachedFlights = self.getCachedFlights() {
                                      self.flights.accept(cachedFlights)
                                  } else {

@@ -6,11 +6,16 @@
 //
 
 import Foundation
+protocol AppStorageProtocol {
+    func save<T: Codable>(_ value: T, key: String)
+    func get<T: Codable>(key: String, as type: T.Type) -> T?
+    func remove(forKey key: String)
+}
 
-final class AppStorage {
+final class AppStorage: AppStorageProtocol {
     static let shared = AppStorage()
     private let defaults = UserDefaults.standard
-    private init() { }
+    private init() {}
 
     func save<T: Codable>(_ value: T, key: String) {
         if let data = try? JSONEncoder().encode(value) {

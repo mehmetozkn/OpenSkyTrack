@@ -8,36 +8,8 @@
 import Foundation
 import Alamofire
 
-/// A utility class for logging network requests and responses
-/// This logger provides detailed information about network operations including:
-/// - Request/Response URLs
-/// - HTTP Methods
-/// - Headers
-/// - Request/Response Bodies
-/// - Error Information
-/// 
-/// Usage:
-/// ```
-/// // Log a request
-/// NetworkLogger.logRequest(request)
-///
-/// // Log a response
-/// NetworkLogger.logResponse(response: response, data: data, error: error)
-/// ```
 final class NetworkLogger {
     // MARK: - Request Logging
-    
-    /// Logs the details of a network request
-    /// - Parameters:
-    ///   - request: The URLRequest to be logged
-    ///   - requestId: Optional unique identifier for the request, useful for tracking request-response pairs
-    /// 
-    /// This method logs:
-    /// - Request ID (if provided)
-    /// - URL
-    /// - HTTP Method
-    /// - Headers
-    /// - Body (if present)
     static func logRequest(_ request: URLRequest, requestId: String? = nil) {
         print("\n🚀 REQUEST LOG 🚀")
         if let requestId = requestId {
@@ -55,21 +27,6 @@ final class NetworkLogger {
     }
 
     // MARK: - Response Logging
-    
-    /// Logs the details of a network response
-    /// - Parameters:
-    ///   - response: The HTTPURLResponse containing status code and headers
-    ///   - data: The response data received from the server
-    ///   - error: Any error that occurred during the request
-    ///   - requestId: Optional unique identifier matching the original request
-    /// 
-    /// This method logs:
-    /// - Request ID (if provided)
-    /// - URL
-    /// - Status Code
-    /// - Headers
-    /// - Response Data
-    /// - Error (if present)
     static func logResponse(response: HTTPURLResponse?, data: Data?, error: Error?, requestId: String? = nil) {
         print("\n📥 RESPONSE LOG 📥")
         if let requestId = requestId {
@@ -94,15 +51,6 @@ final class NetworkLogger {
     }
 
     // MARK: - Helper Methods
-    
-    /// Formats JSON data into a pretty-printed string
-    /// - Parameter data: The data to be formatted
-    /// - Returns: A formatted JSON string if the data is valid JSON, otherwise returns the raw string representation
-    /// 
-    /// This method attempts to:
-    /// 1. Parse the data as JSON
-    /// 2. Pretty print it with sorted keys
-    /// 3. Fall back to raw string if JSON parsing fails
     private static func formatJSON(from data: Data) -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: data),
             let prettyData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]),

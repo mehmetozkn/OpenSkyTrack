@@ -26,40 +26,22 @@ protocol FlightViewModelProtocol {
 }
 
 final class FlightViewModel: FlightViewModelProtocol {
-    /// Current list of all flights
     let flights: BehaviorRelay<[Flight]> = BehaviorRelay(value: [])
-
-    /// Stream of error messages
     let error: PublishRelay<String> = PublishRelay()
-
-    /// Loading state indicator
     let isLoading: BehaviorRelay<Bool> = BehaviorRelay(value: false)
-
-    /// List of available countries for filtering
     let availableCountries: BehaviorRelay<[String]> = BehaviorRelay(value: [])
-
-    /// Currently selected country for filtering
     let selectedCountry: BehaviorRelay<String?> = BehaviorRelay(value: nil)
-
-    /// Whether an error alert is currently being shown
     let isAlertPresented: BehaviorRelay<Bool> = BehaviorRelay(value: false)
-
-    /// Service for managing flight data
-    private let flightService: FlightServiceProtocol
-
-    /// DisposeBag for managing subscriptions
+    
+    private let flightRepository: FlightRepositoryProtocol
     private let disposeBag = DisposeBag()
-
-    /// Last viewed map region for comparison
     private var lastRegion: MKCoordinateRegion?
-
-    /// Observable of filtered flights based on selected country and ground status
+    
     var filteredFlights: Observable<[Flight]> {
         Observable.combineLatest(flights, selectedCountry) { flights, country in
             var filteredFlights = flights.filter { !$0.onGround }
 
             if let country = country {
-                // Flights only in selected country
                 filteredFlights = filteredFlights.filter { $0.originCountry == country }
             }
 
@@ -67,14 +49,14 @@ final class FlightViewModel: FlightViewModelProtocol {
         }
     }
 
-    init(service: FlightServiceProtocol = FlightService()) {
-        self.flightService = service
+    init(service: FlightRepositoryProtocol = FlightRepository()) {
+        self.flightRepository = service
         setupBindings()
     }
 
     func updateFlights(for region: MKCoordinateRegion) {
         lastRegion = region
-        flightService.fetchFlights(for: region)
+        flightRepository.fetchFlights(for: region)
     }
 
     func updateAvailableCountries(_ flights: [Flight]) {
@@ -93,23 +75,22 @@ final class FlightViewModel: FlightViewModelProtocol {
     }
 
     func stopUpdates() {
-        flightService.stopUpdates()
+        flightRepository.stopUpdates()
     }
 
     private func setupBindings() {
-        flightService.flights
+        flightRepository.flights
             .bind(to: flights)
             .disposed(by: disposeBag)
 
-        flightService.error
+        flightRepository.error
             .bind(to: error)
             .disposed(by: disposeBag)
 
-        flightService.isLoading
+        flightRepository.isLoading
             .bind(to: isLoading)
             .disposed(by: disposeBag)
 
-        // Update available countries when flights change
         flights
             .map { flights in
             Array(Set(flights.map { $0.originCountry })).sorted()
@@ -118,8 +99,8 @@ final class FlightViewModel: FlightViewModelProtocol {
             .disposed(by: disposeBag)
 
         selectedCountry
-            .skip(1) // Skip the initial value to avoid sending a request
-        .subscribe(onNext: { [weak self] _ in
+            .skip(1)
+            .subscribe(onNext: { [weak self] _ in
             guard let self = self,
                 let region = self.lastRegion else { return }
             self.updateFlights(for: region)

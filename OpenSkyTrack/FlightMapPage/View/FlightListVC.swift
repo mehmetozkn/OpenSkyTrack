@@ -23,16 +23,9 @@ final class FlightListViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Button for selecting country filters
     private var countryPickerButton: UIButton!
-
-    /// MapView displaying flight locations
     private var mapView: MKMapView!
-
-    /// Activity indicator for loading states
     private var loadingIndicator: UIActivityIndicatorView!
-
-    /// Semi-transparent view for loading overlay
     private var overlayView: UIView!
 
     override func viewDidLoad() {
@@ -40,7 +33,6 @@ final class FlightListViewController: UIViewController {
         setupUI()
         setupBindings()
 
-        // Set initial region
         let initialRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 47.0, longitude: 8.0),
             span: MKCoordinateSpan(latitudeDelta: 2.0, longitudeDelta: 4.0)
@@ -53,7 +45,6 @@ final class FlightListViewController: UIViewController {
         mapView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(mapView)
 
-        // Setup Country Picker Button
         countryPickerButton = UIButton(type: .system)
         countryPickerButton.translatesAutoresizingMaskIntoConstraints = false
         countryPickerButton.setTitle(StringConstants.allCountries, for: .normal)
@@ -63,10 +54,8 @@ final class FlightListViewController: UIViewController {
         countryPickerButton.addTarget(self, action: #selector(showCountryPicker), for: .touchUpInside)
         view.addSubview(countryPickerButton)
 
-        // Setup Loading Indicator ve Overlay
         setupLoadingViews()
 
-        // Setup Constraints
         NSLayoutConstraint.activate([
             countryPickerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             countryPickerButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -83,21 +72,18 @@ final class FlightListViewController: UIViewController {
     }
 
     private func setupLoadingViews() {
-        // Setup overlay view
         overlayView = UIView()
         overlayView.translatesAutoresizingMaskIntoConstraints = false
         overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
         overlayView.isHidden = true
         view.addSubview(overlayView)
 
-        // Setup loading indicator
         loadingIndicator = UIActivityIndicatorView(style: .large)
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.color = .white
         overlayView.addSubview(loadingIndicator)
 
-        // Setup constraints for overlay and indicator
         NSLayoutConstraint.activate([
             overlayView.topAnchor.constraint(equalTo: view.topAnchor),
             overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -110,7 +96,6 @@ final class FlightListViewController: UIViewController {
     }
 
     private func setupBindings() {
-        // Bind loading state
         viewModel.isLoading
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] isLoading in
@@ -119,7 +104,6 @@ final class FlightListViewController: UIViewController {
         })
             .disposed(by: disposeBag)
 
-        // Bind flights
         viewModel.filteredFlights
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] flights in
@@ -128,7 +112,6 @@ final class FlightListViewController: UIViewController {
         })
             .disposed(by: disposeBag)
 
-        // Bind error messages
         viewModel.error
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] error in
@@ -137,13 +120,11 @@ final class FlightListViewController: UIViewController {
         })
             .disposed(by: disposeBag)
 
-        // Bind alert state
         viewModel.isAlertPresented
-            .skip(1) // skip initial value to avoid unnecessary processing
-        .subscribe(onNext: { [weak self] isPresented in
+            .skip(1)
+            .subscribe(onNext: { [weak self] isPresented in
             guard let self = self else { return }
             if !isPresented {
-                // Alert dismissed, update the map if needed
                 let region = self.mapView.region
                 self.viewModel.updateFlights(for: region)
             }
@@ -183,12 +164,10 @@ final class FlightListViewController: UIViewController {
     }
 
     @objc private func showCountryPicker() {
-        // Set alert state to true to prevent API calls
         viewModel.isAlertPresented.accept(true)
 
         let alert = UIAlertController(title: StringConstants.selectCountry, message: nil, preferredStyle: .actionSheet)
 
-        // Add "All Countries" option
         alert.addAction(UIAlertAction(title: StringConstants.allCountries, style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.viewModel.selectedCountry.accept(nil)
@@ -196,7 +175,6 @@ final class FlightListViewController: UIViewController {
             self.viewModel.isAlertPresented.accept(false)
         })
 
-        // Add country options
         viewModel.availableCountries.value.forEach { country in
             alert.addAction(UIAlertAction(title: country, style: .default) { [weak self] _ in
                 guard let self = self else { return }
@@ -206,7 +184,6 @@ final class FlightListViewController: UIViewController {
             })
         }
 
-        // Add cancel action
         alert.addAction(UIAlertAction(title: StringConstants.cancel, style: .cancel) { [weak self] _ in
             self?.viewModel.isAlertPresented.accept(false)
         })
@@ -224,7 +201,6 @@ extension FlightListViewController: MKMapViewDelegate {
         let identifier = StringConstants.flighAnnotationIdentifier
         let annotationView: MKMarkerAnnotationView
 
-        // Try to dequeue a reusable annotation view
         if let reusableView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
             annotationView = reusableView
             annotationView.annotation = annotation
