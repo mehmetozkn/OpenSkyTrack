@@ -10,7 +10,7 @@ import MapKit
 import RxSwift
 import RxRelay
 
-final class FlightListViewController: UIViewController {
+final class FlightListViewController: UIViewController, LoadingShowable {
     private let viewModel: FlightViewModelProtocol
     private let disposeBag = DisposeBag()
 
@@ -25,8 +25,6 @@ final class FlightListViewController: UIViewController {
 
     private var countryPickerButton: UIButton!
     private var mapView: MKMapView!
-    private var loadingIndicator: UIActivityIndicatorView!
-    private var overlayView: UIView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,8 +52,6 @@ final class FlightListViewController: UIViewController {
         countryPickerButton.addTarget(self, action: #selector(showCountryPicker), for: .touchUpInside)
         view.addSubview(countryPickerButton)
 
-        setupLoadingViews()
-
         NSLayoutConstraint.activate([
             countryPickerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             countryPickerButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -69,30 +65,6 @@ final class FlightListViewController: UIViewController {
         ])
 
         mapView.delegate = self
-    }
-
-    private func setupLoadingViews() {
-        overlayView = UIView()
-        overlayView.translatesAutoresizingMaskIntoConstraints = false
-        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-        overlayView.isHidden = true
-        view.addSubview(overlayView)
-
-        loadingIndicator = UIActivityIndicatorView(style: .large)
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.color = .white
-        overlayView.addSubview(loadingIndicator)
-
-        NSLayoutConstraint.activate([
-            overlayView.topAnchor.constraint(equalTo: view.topAnchor),
-            overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            overlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            loadingIndicator.centerXAnchor.constraint(equalTo: overlayView.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: overlayView.centerYAnchor)
-        ])
     }
 
     private func setupBindings() {
@@ -133,15 +105,14 @@ final class FlightListViewController: UIViewController {
     }
 
     private func updateLoadingState(_ isLoading: Bool) {
-        overlayView.isHidden = !isLoading
         if isLoading {
-            loadingIndicator.startAnimating()
+            showLoading()
             view.isUserInteractionEnabled = false
             mapView.isZoomEnabled = false
             mapView.isScrollEnabled = false
             countryPickerButton.isEnabled = false
         } else {
-            loadingIndicator.stopAnimating()
+            hideLoading()
             view.isUserInteractionEnabled = true
             mapView.isZoomEnabled = true
             mapView.isScrollEnabled = true
